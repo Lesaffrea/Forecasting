@@ -1,4 +1,4 @@
-
+#
 # This is the server logic for a Shiny web application.
 # You can find out more about building applications with Shiny here:
 #
@@ -9,7 +9,7 @@ library(shiny)
 library(rCharts)
 library(lubridate)
 library(BH)
-options(RCHART_WIDTH = 400)
+options(RCHART_WIDTH = 800)
 
 # We put it there to see 
 GetDataRWE <-function(){
@@ -29,40 +29,55 @@ GetDataRWE <-function(){
         initialtrainingset
 }
 
-#
-#  Transform tha dat in Year Month Day 
-#
-reformatdate <-function(Date){
-        Date <-unlist(strsplit(Date, split="-"))
-        Date[3] <-paste0(c("20"), Date[3])
-        Date <-paste(Date[3],Date[2],Date[1],sep="-")
-        Date
-}
-
-
 #   ---------------------
 #   Build the fix objects
 #   ---------------------
 trainingset <-GetDataRWE()
-for( loop in 1:nrow(trainingset)){
-        trainingset$Date[loop] <-reformatdate(trainingset$Date[loop])
-}
+trainingset$Date <-sub(c(" UTC"),"", dmy(trainingset$Date))
 trainingset12 <-trainingset[year(trainingset$Date) %in% c("2012"),]
+trainingset13 <-trainingset[year(trainingset$Date) %in% c("2013"),]
+trainingset14 <-trainingset[year(trainingset$Date) %in% c("2014"),]
+#
+# We build the graphic data for the trend analysis
+#
+beginningyear <-sub(c(" UTC"), "",dmy(paste0(c("01-01-"),year(trainingset$Date[1]) )))
+firstday <-as.numeric(as.Date(trainingset$Date[1]) -as.Date(beginningyear))
+
+#  We build the time serie 
+tsprod <-ts(trainingset$volume, start=c(year(trainingset$Date[1]),
+                                               firstday),
+            frequency =365 )
+#
+#  We do the decomposition
+#
+trendseason <-stl(tsprod, "periodic")
+rm(trainingset)
+
+
+
 
 
 shinyServer(function(input, output) {
         
 output$distPlot <- renderChart({
         
-         Rmgraph <-mPlot(x = "Date", y = "volume", type = "Line", data = trainingset12,
+        selected <-paste0(c("y"), input$dispyear)
+        todisplay<- switch(selected,
+                        y2012 = trainingset12,
+                        y2013 = trainingset13,
+                        y2014 = trainingset14 )
+         
+         
+         Rmgraph <-mPlot(x = "Date", y = "volume", type = "Line", data = todisplay,
                           pointSize = 0, lineWidth = 1 )
          Rmgraph$set(dom = 'distPlot')
          return(Rmgraph)
          })
 
-    output$processingMessage<- renderText({ 
-            "In Process"
-    })
+ output$timeserieplot <-renderPlot({
+           threeyears<-plot(trendseason, main="Three production overview with STL decomposition")
+           return(threeyears)
+          })
     
     
     
