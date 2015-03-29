@@ -16,12 +16,21 @@ shinyUI(fluidPage(
         # Application title
         titlePanel("Electricity Prediction"),
         
+        sidebarPanel(
+               selectInput("dispyear", 
+                           label= "Production Year",
+                           choices =list("2012","2013","2014"),
+                           selected ="2012"
+                           )
+                ),
 
          mainPanel(
-            p(" The production of electricity is a challenging area for prediction as shown below the production varies"),
-            p(" It is alread noticeable that we have outliers"),
+            p(" The production of electricity is a challenging area for prediction as electicity is produced to be cosummed"),
+            p(" In the follwing page I present the models is used to come to a prediction level of about 2% MAPE over a period of 3 months"),
+            p(" It is already noticeable that we have outliers, which will involved special treatment"),
             showOutput("distPlot", "morris"),
-            p(" Please note that the outliers have not been removed at this stage")
+            p("The following graphic gives a longer perspective using the STL decomposition.A noticeable decrease in production is noticeable"), 
+            plotOutput("timeserieplot")
             )
   )
 )
