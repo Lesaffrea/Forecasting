@@ -5,10 +5,10 @@
 # http://shiny.rstudio.com
 #
 # 12/04/2015 - Add the display of outliears using the the outlier detection library 
+# 23/04/2015 - We have a problem between shiny and the exception handling I have to remove it 
 library(shiny)
 library(rCharts)
 library(lubridate)
-library(BH)
 library(dplyr)
 library(AnomalyDetection)
 
@@ -80,15 +80,14 @@ trendseason <-stl(tsprod, "periodic")
 #
 OutlierAnalysis <- trainingset %>% select(Date, volume) 
 OutlierAnalysis$Date<-strptime(paste(OutlierAnalysis$Date, c("12:00:00")), format="%Y-%m-%d %H:%M:%S")
-outlierproductionweekbooth<-AnomalyDetectionTs(OutlierAnalysis, max_anoms=0.2, alpha=0.1, direction='both', plot=TRUE, longterm=TRUE, xlabel="3 Years period")
+# outlierproductionweekbooth<-AnomalyDetectionTs(OutlierAnalysis, max_anoms=0.2, alpha=0.1, direction='both', plot=TRUE, longterm=TRUE, xlabel="3 Years period")
+
+
+
+
 rm(trainingset)
-#--------------------------
-#      Outliers LOad 
-#--------------------------
-exceptions <-GetOutliers()
-exceptions <-exceptions[,c("Date", "volume")]
 
-
+#---------------------------
 shinyServer(function(input, output) {
         
 output$distPlot <- renderChart({
@@ -111,20 +110,17 @@ output$distPlot <- renderChart({
            return(threeyears)
           })
  
- output$exceptions <-renderTable({
-          head(exceptions, n= 20)                 
-          })
-    
- output$perthtempprod <-renderImage({
-         list (src = "images/TempProduction2014.png",
-               contentType = "image/png",
-               alt = "Perth Temperaure Production 2014" )
-          })
+
+#output$outliersplot <-renderPlot({
+#         return(outlierproductionweekbooth$plot)      
+# })
+ 
+output$week <-renderImage({
+                return( list (src = "images/week.jpeg",
+                contentType = "./image/jpeg",
+                alt = "Week Variations" )
+                 )
+})
 
 
-output$outliersplot <-renderPlot({
-        return(outlierproductionweekbooth$plot)      
-         })
-    
-    
 })
