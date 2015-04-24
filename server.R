@@ -10,7 +10,7 @@ library(shiny)
 library(rCharts)
 library(lubridate)
 library(dplyr)
-library(AnomalyDetection)
+#library(AnomalyDetection)
 
 
 options(RCHART_WIDTH = 800)
@@ -33,7 +33,7 @@ GetDataRWE <-function(){
         initialtrainingset
 }
 
-# Load the outliers 
+# Load the outliers as we can not do it live !!!
 
 GetOutliers <-function(){
         filename =c("data/outliers.csv")
@@ -61,12 +61,11 @@ trainingset12 <-trainingset[year(trainingset$Date) %in% c("2012"),]
 trainingset13 <-trainingset[year(trainingset$Date) %in% c("2013"),]
 trainingset14 <-trainingset[year(trainingset$Date) %in% c("2014"),]
 
-#
+#-----------------------------------------------------------------
 # We build the graphic data for the trend analysis
-#
+#-----------------------------------------------------------------
 beginningyear <-sub(c(" UTC"), "",dmy(paste0(c("01-01-"),year(trainingset$Date[1]) )))
 firstday <-as.numeric(as.Date(trainingset$Date[1]) -as.Date(beginningyear))
-
 #  We build the time serie 
 tsprod <-ts(trainingset$volume, start=c(year(trainingset$Date[1]),
                                                firstday),
@@ -75,17 +74,29 @@ tsprod <-ts(trainingset$volume, start=c(year(trainingset$Date[1]),
 #  We do the decomposition
 #
 trendseason <-stl(tsprod, "periodic")
-#
+#------------------------------------------------------------------
 # Prepare the outliers
-#
+# 1. Build the outliers 
+# 2. Load the exception as AnomalyDetectionTs does not work on shiny
+#    but we keep the preparation code. Hope it works one day
+#-------------------------------------------------------------------
 OutlierAnalysis <- trainingset %>% select(Date, volume) 
 OutlierAnalysis$Date<-strptime(paste(OutlierAnalysis$Date, c("12:00:00")), format="%Y-%m-%d %H:%M:%S")
-# outlierproductionweekbooth<-AnomalyDetectionTs(OutlierAnalysis, max_anoms=0.2, alpha=0.1, direction='both', plot=TRUE, longterm=TRUE, xlabel="3 Years period")
-
-
-
-
+#outlierproductionweekbooth<-AnomalyDetectionTs(OutlierAnalysis, max_anoms=0.2, alpha=0.1, direction='both', plot=TRUE, longterm=TRUE, xlabel="3 Years period")
+outliersdata <-read.csv("data/outliers.csv", stringsAsFactor = FALSE)
+# Clean the global environment 
 rm(trainingset)
+#------------------------------------------------------------------
+#
+#  Other datas for display using shiny widget 
+#
+#------------------------------------------------------------------
+modelvariables <-c("Days", "Date Type", "School Holydays" , "Winter", "Month", "Year")
+modelvariablestext <-c("The week day on day per model", "The type of period use only build various models", "If children are at school", "Two seasons only", "Used as variable for the daily model",  "Used as variable for the daily model" )
+variableexplanation <-data.frame(Variables=modelvariables, Comments=modelvariablestext)
+
+
+
 
 #---------------------------
 shinyServer(function(input, output) {
@@ -115,11 +126,29 @@ output$distPlot <- renderChart({
 #         return(outlierproductionweekbooth$plot)      
 # })
  
+output$outlierstable <-renderDataTable({
+                        return(outliersdata)        
+}) 
+ 
+output$process <-renderImage({
+              return(list (src = "images/process.jpg",
+                           contentType = "image/jpeg",
+                           alt = "Forecasting Project Steps" )
+                      
+              )
+})
+
+
 output$week <-renderImage({
-                return( list (src = "images/week.jpeg",
-                contentType = "./image/jpeg",
+                return( list (src = "images/week.jpg",
+                contentType = "image/jpeg",
                 alt = "Week Variations" )
                  )
+})
+
+
+output$variables <-renderTable({
+        return(variableexplanation) 
 })
 
 
