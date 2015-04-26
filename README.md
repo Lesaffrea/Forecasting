@@ -1,6 +1,11 @@
 # Forecasting
 The forecasting to conduct is about electricity production. You can find more explanations and the results under [Shiny](https://innovitnow.shinyapps.io/Shiny/). The full application has been built using R and Shiny. 
-The forecasting application built is for daily prediction.  After evalaution only six main variables were siginificant (for the moment), the training set was two and half years of production.
+The forecasting application built is for daily prediction.  After evaluation only six main variables were siginificant (for the moment), the training set was two and half years of production.
+In this repository you will find:
+
+1. The Shiny files
+
+2. The Presentation in Html and Rpres format. To view the presentation go to [Rpubs](http://rpubs.com/Lesaffrea/76671)
 
 **About the model**
 
