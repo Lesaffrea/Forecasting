@@ -6,10 +6,12 @@
 #
 # 12/04/2015 - Add the display of outliears using the the outlier detection library 
 # 23/04/2015 - We have a problem between shiny and the exception handling I have to remove it 
+# 26/04/2015 - We add the plots of the variable as we work with the training set we have to remove the rm()
 library(shiny)
 library(rCharts)
 library(lubridate)
 library(dplyr)
+library(ggplot2)
 #library(AnomalyDetection)
 
 
@@ -84,14 +86,12 @@ OutlierAnalysis <- trainingset %>% select(Date, volume)
 OutlierAnalysis$Date<-strptime(paste(OutlierAnalysis$Date, c("12:00:00")), format="%Y-%m-%d %H:%M:%S")
 #outlierproductionweekbooth<-AnomalyDetectionTs(OutlierAnalysis, max_anoms=0.2, alpha=0.1, direction='both', plot=TRUE, longterm=TRUE, xlabel="3 Years period")
 outliersdata <-read.csv("data/outliers.csv", stringsAsFactor = FALSE)
-# Clean the global environment 
-rm(trainingset)
 #------------------------------------------------------------------
 #
 #  Other datas for display using shiny widget 
 #
 #------------------------------------------------------------------
-modelvariables <-c("Days", "Date Type", "School Holydays" , "Winter", "Month", "Year")
+modelvariables <-c("Days", "Date Type", "School Holidays" , "Winter", "Month", "Year")
 modelvariablestext <-c("The week day on day per model", "The type of period use only build various models", "If children are at school", "Two seasons only", "Used as variable for the daily model",  "Used as variable for the daily model" )
 variableexplanation <-data.frame(Variables=modelvariables, Comments=modelvariablestext)
 
@@ -120,31 +120,31 @@ output$distPlot <- renderChart({
            threeyears<-plot(trendseason, main="Three production overview with STL decomposition")
            return(threeyears)
           })
+# Temp Production graph 
+ output$temperature <-renderPlot({
+         plot <-ggplot(data=trainingset, aes(x=Temp, y=volume, colour=day_type)) + geom_point()
+         return(plot)
+         
+ })
  
 
 #output$outliersplot <-renderPlot({
 #         return(outlierproductionweekbooth$plot)      
 # })
  
-output$outlierstable <-renderDataTable({
-                        return(outliersdata)        
+output$outlierstable <-renderTable({
+                        outtable <-outliersdata[, c("Date", "day_type", "volume")]
+                        names(outtable) <-c("Date", "Day Type", "Volume")
+                        return(outtable[1:15,])        
 }) 
  
-output$process <-renderImage({
-              return(list (src = "images/process.jpg",
-                           contentType = "image/jpeg",
-                           alt = "Forecasting Project Steps" )
-                      
-              )
-})
 
 
 output$week <-renderImage({
-                return( list (src = "images/week.jpg",
+                list (src = "images/week.jpg",
                 contentType = "image/jpeg",
                 alt = "Week Variations" )
-                 )
-})
+}, deleteFile =  FALSE)
 
 
 output$variables <-renderTable({
