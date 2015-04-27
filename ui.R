@@ -79,7 +79,8 @@ shinyUI(
                   h4("Week days"),
                   p("We build one model for each day of the week. We first remove all the exception periods for the training set and the run multiple models and picked up the one with the least error."),
                   h5("Production and Temperature"),
-                  p("One variable to consider is temperature. As example in Perth Western Australia the production / temperature is a quadratic function, in case of European consumption pattern this "),
+                  p("One variable to consider is temperature. As example in Perth Western Australia the production / temperature is a quadratic function, in case of European consumption the function is more cloudy. If we remove the outliers for Europe we can notice that we have a flat line."),
+                  p("You can see the differences in the graphic shown below"),
                   
                   fluidRow(column(2, selectInput("place", 
                                                  label= "Production Place",

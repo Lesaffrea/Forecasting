@@ -7,6 +7,8 @@
 # 12/04/2015 - Add the display of outliears using the the outlier detection library 
 # 23/04/2015 - We have a problem between shiny and the exception handling I have to remove it 
 # 26/04/2015 - We add the plots of the variable as we work with the training set we have to remove the rm()
+# 26/05/2015 - We add the temerature between Perth and Germany in reactive 
+
 library(shiny)
 library(rCharts)
 library(lubridate)
@@ -86,6 +88,12 @@ OutlierAnalysis <- trainingset %>% select(Date, volume)
 OutlierAnalysis$Date<-strptime(paste(OutlierAnalysis$Date, c("12:00:00")), format="%Y-%m-%d %H:%M:%S")
 #outlierproductionweekbooth<-AnomalyDetectionTs(OutlierAnalysis, max_anoms=0.2, alpha=0.1, direction='both', plot=TRUE, longterm=TRUE, xlabel="3 Years period")
 outliersdata <-read.csv("data/outliers.csv", stringsAsFactor = FALSE)
+#------------------------------------------------
+# Get the Production temp of WA 
+#------------------------------------------------
+watempprod <-read.csv("data/ProductionTemp2014wa.csv", stringsAsFactors = FALSE)
+names(watempprod)[2:3] <-c("volume","Temp")
+
 #------------------------------------------------------------------
 #
 #  Other datas for display using shiny widget 
@@ -120,11 +128,13 @@ output$distPlot <- renderChart({
            threeyears<-plot(trendseason, main="Three production overview with STL decomposition")
            return(threeyears)
           })
-# Temp Production graph 
+
+ 
+ # Temp Production graph 
  output$temperature <-renderPlot({
-         plot <-ggplot(data=trainingset, aes(x=Temp, y=volume, colour=day_type)) + geom_point()
-         return(plot)
-         
+         ifelse(input$place ==c("Germany"), todisplay<-trainingset, todisplay<-watempprod )
+         tempprod <-plot(todisplay$Temp,todisplay$volume, xlab= "Temperature", ylab ="Production")
+         return(tempprod)
  })
  
 
