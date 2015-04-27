@@ -80,7 +80,15 @@ shinyUI(
                   p("We build one model for each day of the week. We first remove all the exception periods for the training set and the run multiple models and picked up the one with the least error."),
                   h5("Production and Temperature"),
                   p("One variable to consider is temperature. As example in Perth Western Australia the production / temperature is a quadratic function, in case of European consumption pattern this "),
-                  plotOutput(outputId="temperature"),
+                  
+                  fluidRow(column(2, selectInput("place", 
+                                                 label= "Production Place",
+                                                 choices =list("Germany", "Perth WA"),
+                                                 selected ="Germany" ),
+                                  helpText("You can compare variation in Production as dependent of Temperature")
+                                  ),
+                           column(7,  plotOutput(outputId="temperature"))
+                  ), 
                   p("On this graphic one could notice again the exception in production due to Christmas and various periods but we do not have a quadratic function production temp")
          )
   )
