@@ -92,11 +92,10 @@ outliersdata <-read.csv("data/outliers.csv", stringsAsFactor = FALSE)
 # Get the Production temp of WA 
 #------------------------------------------------
 watempprod <-read.csv("data/ProductionTemp2014wa.csv", stringsAsFactors = FALSE)
-names(watempprod)[2:3] <-c("volume","Temp")
-
-#------------------------------------------------------------------
-#
-#  Other datas for display using shiny widget 
+names(watempprod)[2:3] <-c("Volume","Temp")
+watempprod <-watempprod[,2:3]
+getempprod <-trainingset[ trainingset$day_type %in% c("WE"),c("volume", "Temp")]
+names(getempprod) <-c("Volume","Temp")
 #
 #------------------------------------------------------------------
 modelvariables <-c("Days", "Date Type", "School Holidays" , "Winter", "Month", "Year")
@@ -130,10 +129,11 @@ output$distPlot <- renderChart({
           })
 
  
- # Temp Production graph 
+ # Temp Production graph we do not use reactive here as we do not have to compute communalities
+ # All data have been prepeared 
  output$temperature <-renderPlot({
-         ifelse(input$place ==c("Germany"), todisplay<-trainingset, todisplay<-watempprod )
-         tempprod <-plot(todisplay$Temp,todisplay$volume, xlab= "Temperature", ylab ="Production")
+         ifelse(input$place ==c("Germany"), todisplay<-getempprod, todisplay<-watempprod )
+         tempprod <-ggplot(todisplay, aes(x=Temp,y=Volume)) + geom_point()
          return(tempprod)
  })
  

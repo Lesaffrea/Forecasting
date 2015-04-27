@@ -4,7 +4,8 @@
 #
 # http://shiny.rstudio.com
 #
-
+# 26/05/2014 - Add the Germany Perth plot for Temp / Volume 
+#
 library(shiny)
 library(rCharts)
 options(RCHART_LIB = 'polycharts')      ## Special Rcharts
@@ -58,8 +59,6 @@ shinyUI(
                   tableOutput('outlierstable'),
                   h4("Exceptional Dates"),
                   p("The exceptions represented above are associated with a date and a date type. Apart from Sunday and Saturday (SU, SD) all date types have some other attributes (EM = Easter Monday, CD = Christmas, BD = Boxing Day). Using ESD method the exceptional periods have been selected and we are confident that by removing the exceptions we could come to accurate predictions"),
-                  p("The following graphic show the variation on production for the Easter period."),
-                  
                   h4("Different Models"),
                   p("Based on the analysis of the outliers, it appears that holidays specially school holidays have one important influence on the production, consumption of electricty. Therefore as presented introduction page we shall build mutliple models. Some models for regular periods and some for exceptions")
                   
@@ -79,7 +78,7 @@ shinyUI(
                   h4("Week days"),
                   p("We build one model for each day of the week. We first remove all the exception periods for the training set and the run multiple models and picked up the one with the least error."),
                   h5("Production and Temperature"),
-                  p("One variable to consider is temperature. As example in Perth Western Australia the production / temperature is a quadratic function, in case of European consumption the function is more cloudy. If we remove the outliers for Europe we can notice that we have a flat line."),
+                  p("One variable to consider is temperature. As example in Perth Western Australia the production / temperature is a quadratic function, in case of European consumption we have a higher variance"),
                   p("You can see the differences in the graphic shown below"),
                   
                   fluidRow(column(2, selectInput("place", 
