@@ -8,12 +8,15 @@
 # 23/04/2015 - We have a problem between shiny and the exception handling I have to remove it 
 # 26/04/2015 - We add the plots of the variable as we work with the training set we have to remove the rm()
 # 26/05/2015 - We add the temerature between Perth and Germany in reactive 
+# 03/05/2015 - Add the usage of the package ggExtra for the temp production graphic 
 
 library(shiny)
 library(rCharts)
 library(lubridate)
 library(dplyr)
 library(ggplot2)
+library(ggExtra)
+library(gridExtra)
 #library(AnomalyDetection)
 
 
@@ -134,6 +137,7 @@ output$distPlot <- renderChart({
  output$temperature <-renderPlot({
          ifelse(input$place ==c("Germany"), todisplay<-getempprod, todisplay<-watempprod )
          tempprod <-ggplot(todisplay, aes(x=Temp,y=Volume)) + geom_point()
+         tempprod <-ggExtra::ggMarginal(tempprod, type="histogram", margins="both", marginCol ="blue", marginFill="lightblue" )
          return(tempprod)
  })
  
